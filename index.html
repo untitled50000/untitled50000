@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>untitled50000</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #2b0000;
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .title {
+      font-size: 56px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 40px;
+    }
+
+    .counter {
+      font-size: 20px;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    .button {
+      border: 1px solid #f5f5f5;
+      padding: 12px 28px;
+      text-decoration: none;
+      color: #f5f5f5;
+      font-size: 14px;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: #f5f5f5;
+      color: #2b0000;
+    }
+
+    .footnote {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      opacity: 0.5;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="title">untitled50000</div>
+    <div class="subtitle">opens at 50,000</div>
+
+    <div class="counter">... / 50,000</div>
+
+    <div class="button" onclick="join()">JOIN</div>
+  </div>
+
+  <div class="footnote">$3.65 / year</div>
+
+  <script>
+    const supabaseUrl = "YOUR_SUPABASE_URL";
+    const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function loadCounter() {
+      const { data } = await supabase
+        .from('untitled50000_counter')
+        .select('active_members')
+        .single();
+
+      if (data) {
+        document.querySelector('.counter').innerText = `${data.active_members} / 50,000`;
+      } else {
+        document.querySelector('.counter').innerText = `0 / 50,000`;
+      }
+    }
+
+    function join() {
+      // replace with your Stripe link
+      window.location.href = "https://buy.stripe.com/YOUR_LINK";
+    }
+
+    loadCounter();
+  </script>
+
+</body>
+</html>
