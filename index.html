@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>untitled50000</title>
+  <link rel="icon" href="/favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #2b0000;
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    .container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+    }
+    .title { font-size: 56px; margin-bottom: 10px; }
+    .subtitle { font-size: 14px; opacity: 0.7; margin-bottom: 40px; }
+    .counter { font-size: 20px; margin-bottom: 30px; }
+    .button {
+      border: 1px solid #f5f5f5;
+      padding: 12px 28px;
+      color: #f5f5f5;
+      background: transparent;
+      cursor: pointer;
+    }
+    .button:hover { background: #f5f5f5; color: #2b0000; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">untitled50000</div>
+  <div class="subtitle">opens at 50,000</div>
+  <div class="counter" id="counter">... / 50,000</div>
+  <button class="button" id="joinBtn">JOIN</button>
+</div>
+
+<script>
+const supabaseUrl = "https://qaywmgmxrrokicxhtctc.supabase.co";
+const supabaseClient = window.supabase.createClient(
+  supabaseUrl,
+  "PASTE_YOUR_ANON_KEY_HERE"
+);
+
+async function loadCounter() {
+  const { data } = await supabaseClient
+    .from("untitled50000_counter")
+    .select("active_members")
+    .single();
+
+  document.getElementById("counter").textContent =
+    (data?.active_members || 0) + " / 50,000";
+}
+
+loadCounter();
+
+document.getElementById("joinBtn").onclick = async () => {
+  const email = prompt("enter your email");
+  if (!email) return;
+
+  const { data: member } = await supabaseClient
+    .from("untitled50000_members")
+    .upsert(
+      {
+        email,
+        status: "started",
+        checkout_started_at: new Date().toISOString()
+      },
+      { onConflict: "email" }
+    )
+    .select("id")
+    .single();
+
+  const res = await fetch(
+    "https://qaywmgmxrrokicxhtctc.functions.supabase.co/create-checkout-session",
+    {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ memberId: member.id })
+    }
+  );
+
+  const json = await res.json();
+  window.location.href = json.url;
+};
+</script>
+
+</body>
+</html>
