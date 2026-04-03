@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>untitled50000</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #2a0000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    button {
+      background: #000;
+      color: #fff;
+      border: 1px solid #fff;
+      padding: 14px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #fff;
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>untitled50000</h1>
+    <button onclick="startCheckout()">join</button>
+  </div>
+
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://qaywmgmxrrokicxhtctc.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFheXdtZ214cnJva2ljeGh0Y3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODk5MzUsImV4cCI6MjA5MDY2NTkzNX0.cRBfsdSkNjV_93-_SREQkc0A3PGuk234NbEAg3EBgc0"
+    );
+
+    async function startCheckout() {
+      try {
+        const email = prompt("enter your email");
+        if (!email) return;
+
+        const { data: member, error: memberError } = await supabaseClient
+          .from("untitled50000_members")
+          .upsert(
+            {
+              email: email,
+              status: "started",
+              payment_status: "pending",
+              subscription_status: "pending",
+              active: false,
+              checkout_started_at: new Date().toISOString()
+            },
+            { onConflict: "email" }
+          )
+          .select("id")
+          .single();
+
+        if (memberError || !member?.id) {
+          alert(memberError?.message || "error saving member");
+          return;
+        }
+
+        const res = await fetch(
+          "https://qaywmgmxrrokicxhtctc.functions.supabase.co/create-checkout-session",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              email: email,
+              member_id: member.id
+            })
+          }
+        );
+
+        const payload = await res.json();
+
+        if (!res.ok) {
+          alert(payload.error || "error starting checkout");
+          return;
+        }
+
+        if (!payload.url) {
+          alert("missing checkout url");
+          return;
+        }
+
+        window.location.href = payload.url;
+
+      } catch (err) {
+        console.error(err);
+        alert("error starting checkout");
+      }
+    }
+  </script>
+</body>
+</html>
