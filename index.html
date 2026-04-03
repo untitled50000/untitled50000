@@ -8,10 +8,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>untitled50000</title>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=101">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png?v=101">
-  <link rel="shortcut icon" href="favicon.png?v=101">
-  <link rel="apple-touch-icon" href="favicon.png?v=101">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=102">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png?v=102">
+  <link rel="shortcut icon" href="favicon.png?v=102">
+  <link rel="apple-touch-icon" href="favicon.png?v=102">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -59,9 +59,11 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: 11px;
-      opacity: 0.7;
+      opacity: 0.78;
       white-space: nowrap;
-      pointer-events: none;
+      max-width: calc(100vw - 32px);
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   </style>
 </head>
@@ -82,6 +84,7 @@ const supabaseUrl = "https://qaywmgmxrrokicxhtctc.supabase.co";
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFheXdtZ214cnJva2ljeGh0Y3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODk5MzUsImV4cCI6MjA5MDY2NTkzNX0.cRBfsdSkNjV_93-_SREQkc0A3PGuk234NbEAg3EBgc0";
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 const statusEl = document.getElementById("status");
+const joinBtn = document.getElementById("joinBtn");
 
 async function loadCounter() {
   try {
@@ -101,18 +104,24 @@ async function loadCounter() {
 
 loadCounter();
 
-document.getElementById("joinBtn").onclick = async () => {
+joinBtn.onclick = async () => {
   try {
     const email = prompt("enter your email");
     if (!email) return;
 
+    joinBtn.disabled = true;
     statusEl.textContent = "starting checkout…";
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
 
     const res = await fetch(
       "https://qaywmgmxrrokicxhtctc.functions.supabase.co/checkout2?ts=" + Date.now(),
       {
         method: "POST",
         cache: "no-store",
+        mode: "cors",
+        signal: controller.signal,
         headers: {
           "Content-Type": "application/json",
           "apikey": supabaseAnonKey
@@ -121,21 +130,32 @@ document.getElementById("joinBtn").onclick = async () => {
       }
     );
 
-    const json = await res.json();
+    clearTimeout(timeout);
+
+    const text = await res.text();
+    let json = null;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {}
 
     if (!res.ok || !json?.url) {
-      const message = json?.error || json?.message || "error starting checkout";
+      const message = (json && (json.error || json.message)) || text || ("checkout error " + res.status);
       statusEl.textContent = message;
       alert(message);
+      joinBtn.disabled = false;
       return;
     }
 
     statusEl.textContent = "redirecting…";
     window.location.href = json.url;
   } catch (err) {
-    const message = err && err.message ? err.message : "error starting checkout";
+    const message =
+      err && err.name === "AbortError"
+        ? "checkout request timed out"
+        : (err && err.message ? err.message : "error starting checkout");
     statusEl.textContent = message;
     alert(message);
+    joinBtn.disabled = false;
   }
 };
 </script>
