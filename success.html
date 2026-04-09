@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>untitled50000 — confirmed</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=102">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png?v=102">
+  <link rel="shortcut icon" href="favicon.png?v=102">
+  <link rel="apple-touch-icon" href="favicon.png?v=102">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #2b0000;
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+    }
+
+    .container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+      box-sizing: border-box;
+      opacity: 0;
+      animation: fadeIn 1.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .subtitle {
+      font-size: 14px;
+      opacity: 0.7;
+      max-width: 420px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .button {
+      border: 1px solid #f5f5f5;
+      padding: 12px 28px;
+      color: #f5f5f5;
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .button:hover {
+      background: #f5f5f5;
+      color: #2b0000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="subtitle">
+      you’ll receive an email when untitled50000 opens.
+    </div>
+
+    <button class="button" type="button" onclick="shareLink()">SHARE</button>
+  </div>
+
+  <script>
+    async function shareLink() {
+      const url = "https://untitled50000.com";
+      const text = "untitled50000";
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "untitled50000",
+            text: text,
+            url: url
+          });
+          return;
+        } catch (err) {
+          // fall through to clipboard
+        }
+      }
+
+      try {
+        await navigator.clipboard.writeText(url);
+        alert("link copied");
+      } catch (err) {
+        prompt("copy this link", url);
+      }
+    }
+  </script>
+
+</body>
+</html>
